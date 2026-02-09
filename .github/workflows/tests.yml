@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Homebrew
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
+          fi
+
+      - name: Set up tap from checkout
+        run: |
+          mkdir -p "$(brew --repository)/Library/Taps/mbarbin"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/mbarbin/homebrew-dunolint"
+
+      - name: Validate formulas
+        run: |
+          for formula in Formula/*.rb; do
+            name=$(basename "$formula" .rb)
+            brew audit --strict --online "mbarbin/dunolint/$name"
+          done
+
+      - name: Install and test formulas
+        run: |
+          for formula in Formula/*.rb; do
+            name=$(basename "$formula" .rb)
+            echo "::group::Testing $name"
+            brew install --verbose "mbarbin/dunolint/$name"
+            brew test "mbarbin/dunolint/$name"
+            brew uninstall "mbarbin/dunolint/$name"
+            echo "::endgroup::"
+          done
