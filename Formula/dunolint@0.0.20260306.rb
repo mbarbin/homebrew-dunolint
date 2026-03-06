@@ -1,4 +1,4 @@
-class Dunolint < Formula
+class DunolintAT0020260306 < Formula
   desc "A linter for build files in dune projects (OCaml)"
   homepage "https://github.com/mbarbin/dunolint"
   version "0.0.20260306"
