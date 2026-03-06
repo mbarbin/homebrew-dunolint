@@ -52,8 +52,9 @@ jobs:
             name=$(basename "$alias")
             target=$(basename "$(readlink "$alias")" .rb)
             echo "Checking alias $name -> $target"
-            brew info "mbarbin/dunolint/$name" | grep -q "$target" || {
+            info=$(brew info "mbarbin/dunolint/$name" 2>&1)
+            if ! echo "$info" | grep -q "$target"; then
               echo "::error::Alias $name does not resolve to $target"
               exit 1
-            }
+            fi
           done
