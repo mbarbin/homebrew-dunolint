@@ -35,13 +35,25 @@ jobs:
             brew audit --strict --online "mbarbin/dunolint/$name"
           done
 
-      - name: Install and test formulas
+      - name: Test formulas
         run: |
           for formula in Formula/*.rb; do
             name=$(basename "$formula" .rb)
-            echo "::group::Testing $name"
+            echo "::group::Testing formula $name"
             brew install --verbose "mbarbin/dunolint/$name"
             brew test "mbarbin/dunolint/$name"
             brew uninstall "mbarbin/dunolint/$name"
             echo "::endgroup::"
+          done
+
+      - name: Verify aliases
+        run: |
+          for alias in Aliases/*; do
+            name=$(basename "$alias")
+            target=$(basename "$(readlink "$alias")" .rb)
+            echo "Checking alias $name -> $target"
+            brew info "mbarbin/dunolint/$name" | grep -q "$target" || {
+              echo "::error::Alias $name does not resolve to $target"
+              exit 1
+            }
           done
