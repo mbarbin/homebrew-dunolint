@@ -36,6 +36,8 @@ jobs:
           done
 
       - name: Install and test formulas
+        env:
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
           for formula in Formula/*.rb; do
             name=$(basename "$formula" .rb)
