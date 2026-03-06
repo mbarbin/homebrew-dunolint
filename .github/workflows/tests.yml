@@ -45,3 +45,14 @@ jobs:
             brew uninstall "mbarbin/dunolint/$name"
             echo "::endgroup::"
           done
+
+      - name: Test aliases
+        run: |
+          for alias in Aliases/*; do
+            name=$(basename "$alias")
+            echo "::group::Testing alias $name"
+            brew install --verbose "mbarbin/dunolint/$name"
+            brew test "mbarbin/dunolint/$name"
+            brew uninstall "mbarbin/dunolint/$name"
+            echo "::endgroup::"
+          done
